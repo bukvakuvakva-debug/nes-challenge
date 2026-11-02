@@ -6,7 +6,23 @@
     <title>NES Quest: 8-Bit Challenge Tracker</title>
     <style>
         body { background-color: #0b0b10; color: #fff; font-family: 'Courier New', Courier, monospace; padding: 20px; max-width: 950px; margin: 0 auto; }
-        h1 { color: #ff0055; text-align: center; text-shadow: 3px 3px #00ffff; text-transform: uppercase; font-size: 2.2rem; }
+        h1 { color: #ff0055; text-align: center; text-shadow: 3px 3px #00ffff; text-transform: uppercase; font-size: 2.2rem; margin-bottom: 20px; }
+        
+        /* БЛОК ОПИСАНИЯ ПРОЕКТА */
+        .about-panel {
+            background: #12121c;
+            border: 2px solid #ff0055;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 0 15px rgba(255, 0, 85, 0.1);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .about-section { margin-bottom: 15px; }
+        .about-section:last-child { margin-bottom: 0; }
+        .lang-title { color: #00ffff; font-weight: bold; text-transform: uppercase; margin-bottom: 5px; }
+        .highlight-text { color: #ffc107; font-weight: bold; }
+
         .stats-panel { background: #161622; border: 2px dashed #00ffff; padding: 15px; margin-bottom: 25px; text-align: center; }
         .stats-counter { font-size: 1.2rem; color: #ffc107; font-weight: bold; }
         .controls { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
@@ -36,31 +52,43 @@
 
     <h1>🎮 NES Quest Tracker 🎮</h1>
     
+    <!-- ТЕКСТ-ОПИСАНИЕ И ДАНЬ УВАЖЕНИЯ -->
+    <div class="about-panel">
+        <div class="about-section">
+            <div class="lang-title">🇷🇺 О проекте:</div>
+            Добро пожаловать на мой личный марафон по прохождению культовой библиотеки игр NES! Этот челлендж — моя давняя мечта и дань глубокого уважения легендарному <span class="highlight-text">The Mexican Runner</span>, который первым в мире доказал, что невозможное возможно, пройдя все 714 официальных игр. Моя цель — пройти выбранный список игр, используя геймпад, упорство и кнопку случайного выбора для чистого интерактива. Следите за прогрессом в прямом эфире!
+        </div>
+        <div class="about-section">
+            <div class="lang-title">🇺🇸 About the Project:</div>
+            Welcome to my personal marathon of conquering the iconic NES gaming library! This challenge is my long-time dream and a tribute of deep respect to the legendary <span class="highlight-text">The Mexican Runner</span>, who was the first in the world to prove that the impossible is possible by beating all 714 official games. My goal is to beat the selected list of games using a controller, pure grit, and a randomizer button for true chaotic fun. Follow my journey live!
+        </div>
+    </div>
+
     <div class="stats-panel">
-        <div>ПРОГРЕСС ЧЕЛЛЕНДЖА:</div>
+        <div>ПРОГРЕСС ЧЕЛЛЕНДЖА / CHALLENGE PROGRESS:</div>
         <div class="stats-counter" id="statsText">0 / 0 игр пройдено (0%)</div>
     </div>
     
     <div class="controls">
         <div class="search-box">
-            <input type="text" id="searchInput" placeholder="Введите название NES игры..." onkeyup="filterGames()">
+            <input type="text" id="searchInput" placeholder="Введите название NES игры / Type game name..." onkeyup="filterGames()">
         </div>
         <div class="btn-group">
-            <button class="btn" onclick="setFilter('all')">Все игры</button>
-            <button class="btn" onclick="setFilter('пройдена')">Пройденные</button>
-            <button class="btn" onclick="setFilter('в процессе')">В процессе</button>
-            <button class="btn" onclick="setFilter('не пройдена')">Не пройденные</button>
-            <button class="btn btn-cyan btn-random" onclick="selectRandomGame()">🎲 Случайная игра</button>
+            <button class="btn" onclick="setFilter('all')">Все / All</button>
+            <button class="btn" onclick="setFilter('пройдена')">Пройденные / Done</button>
+            <button class="btn" onclick="setFilter('в процессе')">В процессе / Playing</button>
+            <button class="btn" onclick="setFilter('не пройдена')">Не пройденные / Todo</button>
+            <button class="btn btn-cyan btn-random" onclick="selectRandomGame()">🎲 Случайная игра / Random Game</button>
         </div>
     </div>
 
     <table id="gamesTable">
         <thead>
             <tr>
-                <th>Название игры</th>
-                <th>Статус</th>
-                <th>Моя оценка</th>
-                <th>Дата прохождения</th>
+                <th>Название игры / Title</th>
+                <th>Статус / Status</th>
+                <th>Оценка / Rating</th>
+                <th>Дата / Date</th>
             </tr>
         </thead>
         <tbody id="gamesList">
@@ -115,7 +143,7 @@
             const total = allGames.length;
             const completed = allGames.filter(g => g.status === 'пройдена').length;
             const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
-            document.getElementById("statsText").innerText = `${completed} / ${total} игр пройдено (${percent}%)`;
+            document.getElementById("statsText").innerText = `${completed} / ${total} игр пройдено / games beaten (${percent}%)`;
         }
 
         function filterGames() { renderGames(); }
@@ -132,7 +160,7 @@
                 .filter(game => game.status === 'не пройдена');
 
             if (uncompleted.length === 0) {
-                alert("Все игры пройдены!");
+                alert("Все игры пройдены! / All games completed!");
                 return;
             }
 
