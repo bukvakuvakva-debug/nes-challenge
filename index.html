@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NES Quest: 8-Bit Challenge Tracker</title>
+    <style>
+        body { background-color: #0b0b10; color: #fff; font-family: 'Courier New', Courier, monospace; padding: 20px; max-width: 950px; margin: 0 auto; }
+        h1 { color: #ff0055; text-align: center; text-shadow: 3px 3px #00ffff; text-transform: uppercase; font-size: 2.2rem; }
+        .stats-panel { background: #161622; border: 2px dashed #00ffff; padding: 15px; margin-bottom: 25px; text-align: center; }
+        .stats-counter { font-size: 1.2rem; color: #ffc107; font-weight: bold; }
+        .controls { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
+        .search-box { display: flex; gap: 10px; }
+        input { background-color: #12121c; color: #fff; border: 2px solid #ff0055; padding: 12px; font-size: 16px; font-family: inherit; border-radius: 4px; flex-grow: 1; }
+        input:focus { outline: none; border-color: #00ffff; box-shadow: 0 0 10px rgba(0, 255, 255, 0.5); }
+        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn { background-color: #222533; color: #fff; border: 2px solid #ff0055; padding: 10px 15px; cursor: pointer; font-family: inherit; font-size: 14px; text-transform: uppercase; font-weight: bold; transition: all 0.2s ease; box-shadow: 3px 3px 0px #ff0055; }
+        .btn:hover { background-color: #ff0055; color: #fff; box-shadow: 1px 1px 0px #ff0055; transform: translate(2px, 2px); }
+        .btn-cyan { border-color: #00ffff; box-shadow: 3px 3px 0px #00ffff; }
+        .btn-cyan:hover { background-color: #00ffff; color: #000; }
+        .btn-random { background-color: #ffc107; color: #000; border-color: #fff; box-shadow: 3px 3px 0px #fff; margin-left: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 14px; text-align: left; border-bottom: 2px solid #1a1a2e; }
+        th { background-color: #12121c; color: #00ffff; text-transform: uppercase; border-bottom: 3px solid #ff0055; }
+        tr:hover { background-color: #161626; }
+        .highlight-row { background-color: #3a3010 !important; border: 2px solid #ffc107; animation: blink 0.5s linear 4; }
+        @keyframes blink { 50% { opacity: 0.5; } }
+        .status { padding: 6px 10px; font-weight: bold; font-size: 13px; text-transform: uppercase; display: inline-block; border: 1px solid; }
+        .status-completed { border-color: #28a745; color: #28a745; background: rgba(40,167,69,0.1); }
+        .status-playing { border-color: #ffc107; color: #ffc107; background: rgba(255,193,7,0.1); }
+        .status-backlog { border-color: #a1a1a1; color: #a1a1a1; background: rgba(161,161,161,0.1); }
+        .rating { color: #ffc107; font-size: 16px; }
+    </style>
+</head>
+<body>
+
+    <h1>🎮 NES Quest Tracker 🎮</h1>
+    
+    <div class="stats-panel">
+        <div>ПРОГРЕСС ЧЕЛЛЕНДЖА:</div>
+        <div class="stats-counter" id="statsText">0 / 0 игр пройдено (0%)</div>
+    </div>
+    
+    <div class="controls">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Введите название NES игры..." onkeyup="filterGames()">
+        </div>
+        <div class="btn-group">
+            <button class="btn" onclick="setFilter('all')">Все игры</button>
+            <button class="btn" onclick="setFilter('пройдена')">Пройденные</button>
+            <button class="btn" onclick="setFilter('в процессе')">В процессе</button>
+            <button class="btn" onclick="setFilter('не пройдена')">Не пройденные</button>
+            <button class="btn btn-cyan btn-random" onclick="selectRandomGame()">🎲 Случайная игра</button>
+        </div>
+    </div>
+
+    <table id="gamesTable">
+        <thead>
+            <tr>
+                <th>Название игры</th>
+                <th>Статус</th>
+                <th>Моя оценка</th>
+                <th>Дата прохождения</th>
+            </tr>
+        </thead>
+        <tbody id="gamesList">
+            <!-- Игры загрузятся сюда автоматически -->
+        </tbody>
+    </table>
+
+    <script>
+        let allGames = [];
+        let currentFilter = 'all';
+
+        async function loadGames() {
+            try {
+                const response = await fetch('games.json');
+                allGames = await response.json();
+                renderGames();
+                updateStats();
+            } catch (error) {
+                console.error("Ошибка загрузки списка игр:", error);
+            }
+        }
+
+        function renderGames() {
+            const tbody = document.getElementById("gamesList");
+            tbody.innerHTML = "";
+            const searchInput = document.getElementById("searchInput").value.toLowerCase();
+
+            allGames.forEach((game, index) => {
+                const matchesSearch = game.name.toLowerCase().includes(searchInput);
+                const matchesFilter = currentFilter === 'all' || game.status.toLowerCase() === currentFilter;
+
+                if (matchesSearch && matchesFilter) {
+                    const tr = document.createElement("tr");
+                    tr.id = `game-row-${index}`;
+                    
+                    let statusClass = 'status-backlog';
+                    if (game.status === 'пройдена') statusClass = 'status-completed';
+                    if (game.status === 'в процессе') statusClass = 'status-playing';
+
+                    tr.innerHTML = `
+                        <td>${game.name}</td>
+                        <td><span class="status ${statusClass}">${game.status}</span></td>
+                        <td class="rating">${game.rating}</td>
+                        <td>${game.date}</td>
+                    `;
+                    tbody.appendChild(tr);
+                }
+            });
+        }
+
+        function updateStats() {
+            const total = allGames.length;
+            const completed = allGames.filter(g => g.status === 'пройдена').length;
+            const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+            document.getElementById("statsText").innerText = `${completed} / ${total} игр пройдено (${percent}%)`;
+        }
+
+        function filterGames() { renderGames(); }
+        
+        function setFilter(filterValue) {
+            currentFilter = filterValue;
+            renderGames();
+        }
+
+        function selectRandomGame() {
+            document.querySelectorAll('tr').forEach(tr => tr.classList.remove('highlight-row'));
+            const uncompleted = allGames
+                .map((game, index) => ({...game, originalIndex: index}))
+                .filter(game => game.status === 'не пройдена');
+
+            if (uncompleted.length === 0) {
+                alert("Все игры пройдены!");
+                return;
+            }
+
+            const randomGame = uncompleted[Math.floor(Math.random() * uncompleted.length)];
+            setFilter('all');
+            document.getElementById("searchInput").value = "";
+            renderGames();
+            
+            const randomRow = document.getElementById(`game-row-${randomGame.originalIndex}`);
+            if (randomRow) {
+                randomRow.classList.add('highlight-row');
+                randomRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        window.onload = loadGames;
+    </script>
+</body>
+</html>
