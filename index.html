@@ -119,9 +119,8 @@
 
     <div class="filters">
         <button class="filter-btn active" onclick="filterGames('all')">Все</button>
-        <button class="filter-btn" onclick="filterGames('Пройдено')">Пройдено</button>
-        <button class="filter-btn" onclick="filterGames('В процессе')">В процессе</button>
-        <button class="filter-btn" onclick="filterGames('Запланировано')">Запланировано</button>
+        <button class="filter-btn" onclick="filterGames('пройдена')">Пройдено</button>
+        <button class="filter-btn" onclick="filterGames('в процессе')">В процессе</button>
     </div>
 
     <div class="table-container">
@@ -136,7 +135,7 @@
                 </tr>
             </thead>
             <tbody id="games-list">
-                <!-- Данные загрузятся сюда из JSON -->
+                <!-- Данные загрузятся из JSON -->
             </tbody>
         </table>
     </div>
@@ -144,55 +143,67 @@
     <script>
         let allGames = [];
 
-        // Загрузка данных из файла games.json
         async function loadGames() {
             try {
-                const response = await fetch('games.json');
+                // Добавили случайный параметр к имени файла, чтобы гитхаб не кэшировал старую версию JSON
+                const response = await fetch('games.json?v=' + Date.now());
                 allGames = await response.json();
                 renderGames(allGames);
             } catch (error) {
-                console.error("Ошибка загрузки файла games.json:", error);
-                document.getElementById('games-list').innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Не удалось загрузить список игр. Проверь файл games.json.</td></tr>`;
+                console.error("Ошибка загрузки:", error);
+                document.getElementById('games-list').innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Ошибка загрузки файла games.json</td></tr>`;
             }
         }
 
-        // Функция отрисовки таблицы
         function renderGames(games) {
             const tbody = document.getElementById('games-list');
             tbody.innerHTML = '';
 
             games.forEach((game, index) => {
-                let statusClass = 'planned';
-                if (game.status === 'Пройдено') statusClass = 'completed';
-                if (game.status === 'В процессе') statusClass = 'playing';
+                // Точно сопоставляем ключи из твоего файла
+                const title = game.name || "Без названия";
+                const status = game.status ? game.status.toLowerCase().trim() : "не пройдена";
+                const rating = game.rating ? game.rating.trim() : "-";
+                const date = game.date ? game.date.trim() : "-";
+
+                let statusText = "Не пройдена";
+                let statusClass = "planned";
+
+                if (status === "пройдена" || status === "пройдено") {
+                    statusText = "Пройдено";
+                    statusClass = "completed";
+                } else if (status === "в процессе") {
+                    statusText = "В процессе";
+                    statusClass = "playing";
+                }
 
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${index + 1}</td>
-                    <strong><td>${game.title}</td></strong>
-                    <td><span class="status ${statusClass}">${game.status}</span></td>
-                    <td class="rating">${game.rating ? game.rating + ' / 10' : '—'}</td>
-                    <td>${game.date ? game.date : '—'}</td>
+                    <td style="font-weight: bold; color: #fff;">${title}</td>
+                    <td><span class="status ${statusClass}">${statusText}</span></td>
+                    <td class="rating">${(rating !== "-" && rating !== "") ? rating + ' / 10' : '—'}</td>
+                    <td>${(date !== "-" && date !== "") ? date : '—'}</td>
                 `;
                 tbody.appendChild(row);
             });
         }
 
-        // Фильтрация игр по кнопкам
-        function filterGames(status) {
-            // Меняем активную кнопку
+        function filterGames(statusFilter) {
             document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
 
-            if (status === 'all') {
+            if (statusFilter === 'all') {
                 renderGames(allGames);
             } else {
-                const filtered = allGames.filter(game => game.status === status);
+                const filtered = allGames.filter(game => {
+                    const gameStatus = game.status ? game.status.toLowerCase().trim() : "не пройдена";
+                    return gameStatus === statusFilter;
+                });
                 renderGames(filtered);
             }
         }
 
-        // Запуск при загрузке страницы
         window.onload = loadGames;
     </script>
 </body>
