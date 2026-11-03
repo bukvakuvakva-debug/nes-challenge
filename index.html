@@ -1,9 +1,11 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NES Marathon: 101 игра</title>
+
     <style>
         :root {
             --bg-color: #1a1a1a;
@@ -34,10 +36,99 @@
             text-align: center;
         }
 
-        p.subtitle {
+        .subtitle {
             color: #a4b0be;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             text-align: center;
+        }
+
+        /* ПРОГРЕСС */
+
+        .progress-container {
+            width: 100%;
+            max-width: 700px;
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-sizing: border-box;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+            font-weight: bold;
+        }
+
+        .progress-count {
+            color: var(--status-completed);
+            font-size: 20px;
+        }
+
+        .progress-percent {
+            color: var(--accent-color);
+            font-size: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 14px;
+            background: #444;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #2ed573, #7bed9f);
+            border-radius: 20px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-details {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+            color: #a4b0be;
+            font-size: 13px;
+        }
+
+        /* КНОПКИ */
+
+        .actions {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+
+        button {
+            font-family: inherit;
+        }
+
+        .random-btn {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 12px 22px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .random-btn:hover {
+            background: #ff6b81;
+            transform: translateY(-2px);
         }
 
         .filters {
@@ -45,6 +136,7 @@
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
+            justify-content: center;
         }
 
         .filter-btn {
@@ -57,10 +149,13 @@
             transition: all 0.3s ease;
         }
 
-        .filter-btn.active, .filter-btn:hover {
+        .filter-btn.active,
+        .filter-btn:hover {
             background-color: var(--accent-color);
             border-color: var(--accent-color);
         }
+
+        /* ТАБЛИЦА */
 
         .table-container {
             width: 100%;
@@ -102,28 +197,125 @@
             text-transform: uppercase;
         }
 
-        .status.completed { background-color: var(--status-completed); color: #000; }
-        .status.playing { background-color: var(--status-playing); color: #000; }
-        .status.planned { background-color: var(--status-planned); color: #fff; }
+        .status.completed {
+            background-color: var(--status-completed);
+            color: #000;
+        }
+
+        .status.playing {
+            background-color: var(--status-playing);
+            color: #000;
+        }
+
+        .status.planned {
+            background-color: var(--status-planned);
+            color: #fff;
+        }
 
         .rating {
             color: #f1c40f;
             font-weight: bold;
         }
+
+        /* СЛУЧАЙНАЯ ИГРА */
+
+        .random-result {
+            display: none;
+            width: 100%;
+            max-width: 700px;
+            box-sizing: border-box;
+            padding: 18px;
+            background: var(--card-bg);
+            border: 2px solid var(--accent-color);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .random-result h2 {
+            color: var(--accent-color);
+            margin: 0 0 10px;
+        }
+
+        .random-result p {
+            margin: 5px 0;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 12px;
+            }
+
+            th, td {
+                padding: 10px;
+                font-size: 13px;
+            }
+        }
     </style>
 </head>
+
 <body>
 
     <h1>NES Marathon: 101 Games Challenge</h1>
-    <p class="subtitle">Мой челлендж по прохождению игр для Nintendo Entertainment System в стиле The Mexican Runner</p>
 
-    <div class="filters">
-        <button class="filter-btn active" onclick="filterGames('all')">Все</button>
-        <button class="filter-btn" onclick="filterGames('пройдена')">Пройдено</button>
-        <button class="filter-btn" onclick="filterGames('в процессе')">В процессе</button>
+    <p class="subtitle">
+        Мой челлендж по прохождению игр для Nintendo Entertainment System
+        в стиле The Mexican Runner
+    </p>
+
+    <!-- ПРОГРЕСС -->
+    <div class="progress-container">
+
+        <div class="progress-info">
+            <span>🏆 Прогресс прохождения</span>
+            <span class="progress-count" id="progress-count">
+                0 / 101
+            </span>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+        </div>
+
+        <div class="progress-details">
+            <span id="progress-percent">0% завершено</span>
+            <span id="remaining-count">Осталось: 101</span>
+        </div>
+
     </div>
 
+    <!-- СЛУЧАЙНАЯ ИГРА -->
+    <div class="actions">
+        <button class="random-btn" onclick="randomGame()">
+            🎲 Случайная игра из списка
+        </button>
+    </div>
+
+    <div class="random-result" id="random-result"></div>
+
+    <!-- ФИЛЬТРЫ -->
+    <div class="filters">
+
+        <button class="filter-btn active"
+                onclick="filterGames('all', this)">
+            Все
+        </button>
+
+        <button class="filter-btn"
+                onclick="filterGames('пройдена', this)">
+            Пройдено
+        </button>
+
+        <button class="filter-btn"
+                onclick="filterGames('в процессе', this)">
+            В процессе
+        </button>
+
+    </div>
+
+    <!-- ТАБЛИЦА -->
     <div class="table-container">
+
         <table>
             <thead>
                 <tr>
@@ -134,77 +326,265 @@
                     <th>Дата прохождения</th>
                 </tr>
             </thead>
+
             <tbody id="games-list">
-                <!-- Данные загрузятся из JSON -->
+                <tr>
+                    <td colspan="5" style="text-align:center">
+                        Загрузка игр...
+                    </td>
+                </tr>
             </tbody>
         </table>
+
     </div>
 
     <script>
+
         let allGames = [];
 
+        // Загрузка списка игр
         async function loadGames() {
+
             try {
-                // Добавили случайный параметр к имени файла, чтобы гитхаб не кэшировал старую версию JSON
+
                 const response = await fetch('games.json?v=' + Date.now());
+
+                if (!response.ok) {
+                    throw new Error('Не удалось загрузить games.json');
+                }
+
                 allGames = await response.json();
+
+                updateProgress();
                 renderGames(allGames);
+
             } catch (error) {
+
                 console.error("Ошибка загрузки:", error);
-                document.getElementById('games-list').innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Ошибка загрузки файла games.json</td></tr>`;
+
+                document.getElementById('games-list').innerHTML = `
+                    <tr>
+                        <td colspan="5"
+                            style="text-align:center; color:red;">
+                            Ошибка загрузки файла games.json
+                        </td>
+                    </tr>
+                `;
+
             }
+
         }
 
+        // Проверка статуса игры
+        function getGameStatus(game) {
+
+            return game.status
+                ? game.status.toLowerCase().trim()
+                : "не пройдена";
+
+        }
+
+        // ОБНОВЛЕНИЕ ПРОГРЕССА
+        function updateProgress() {
+
+            const total = allGames.length;
+
+            const completed = allGames.filter(game => {
+                const status = getGameStatus(game);
+
+                return status === "пройдена" ||
+                       status === "пройдено";
+            }).length;
+
+            const remaining = total - completed;
+
+            const percent = total > 0
+                ? Math.round((completed / total) * 100)
+                : 0;
+
+            document.getElementById('progress-count').textContent =
+                `${completed} / ${total}`;
+
+            document.getElementById('progress-fill').style.width =
+                percent + '%';
+
+            document.getElementById('progress-percent').textContent =
+                percent + '% завершено';
+
+            document.getElementById('remaining-count').textContent =
+                'Осталось: ' + remaining;
+
+        }
+
+        // ОТОБРАЖЕНИЕ ИГР
         function renderGames(games) {
+
             const tbody = document.getElementById('games-list');
+
             tbody.innerHTML = '';
 
-            games.forEach((game, index) => {
-                // Точно сопоставляем ключи из твоего файла
+            if (games.length === 0) {
+
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align:center">
+                            Игры не найдены
+                        </td>
+                    </tr>
+                `;
+
+                return;
+            }
+
+            games.forEach((game) => {
+
                 const title = game.name || "Без названия";
-                const status = game.status ? game.status.toLowerCase().trim() : "не пройдена";
-                const rating = game.rating ? game.rating.trim() : "-";
-                const date = game.date ? game.date.trim() : "-";
+                const status = getGameStatus(game);
+
+                const rating = game.rating || "-";
+                const date = game.date || "-";
 
                 let statusText = "Не пройдена";
                 let statusClass = "planned";
 
-                if (status === "пройдена" || status === "пройдено") {
+                if (status === "пройдена" ||
+                    status === "пройдено") {
+
                     statusText = "Пройдено";
                     statusClass = "completed";
+
                 } else if (status === "в процессе") {
+
                     statusText = "В процессе";
                     statusClass = "playing";
+
                 }
 
                 const row = document.createElement('tr');
+
                 row.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td style="font-weight: bold; color: #fff;">${title}</td>
-                    <td><span class="status ${statusClass}">${statusText}</span></td>
-                    <td class="rating">${(rating !== "-" && rating !== "") ? rating + ' / 10' : '—'}</td>
-                    <td>${(date !== "-" && date !== "") ? date : '—'}</td>
+                    <td>${allGames.indexOf(game) + 1}</td>
+
+                    <td style="font-weight:bold; color:#fff;">
+                        ${title}
+                    </td>
+
+                    <td>
+                        <span class="status ${statusClass}">
+                            ${statusText}
+                        </span>
+                    </td>
+
+                    <td class="rating">
+                        ${rating !== "-" ? rating + ' / 10' : '—'}
+                    </td>
+
+                    <td>
+                        ${date !== "-" ? date : '—'}
+                    </td>
                 `;
+
                 tbody.appendChild(row);
+
             });
+
         }
 
-        function filterGames(statusFilter) {
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+        // ФИЛЬТРАЦИЯ ИГР
+        function filterGames(statusFilter, button) {
+
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            button.classList.add('active');
+
+            document.getElementById('random-result').style.display = 'none';
 
             if (statusFilter === 'all') {
+
                 renderGames(allGames);
+
             } else {
+
                 const filtered = allGames.filter(game => {
-                    const gameStatus = game.status ? game.status.toLowerCase().trim() : "не пройдена";
-                    return gameStatus === statusFilter;
+
+                    const status = getGameStatus(game);
+
+                    if (statusFilter === 'пройдена') {
+                        return status === 'пройдена' ||
+                               status === 'пройдено';
+                    }
+
+                    return status === statusFilter;
+
                 });
+
                 renderGames(filtered);
+
             }
+
+        }
+
+        // 🎲 СЛУЧАЙНАЯ ИГРА
+        function randomGame() {
+
+            // Берём игры, которые ещё не пройдены
+            const availableGames = allGames.filter(game => {
+
+                const status = getGameStatus(game);
+
+                return status !== 'пройдена' &&
+                       status !== 'пройдено';
+
+            });
+
+            const result = document.getElementById('random-result');
+
+            result.style.display = 'block';
+
+            if (availableGames.length === 0) {
+
+                result.innerHTML = `
+                    <h2>🏆 Поздравляем!</h2>
+                    <p>Ты прошёл все игры из списка!</p>
+                `;
+
+                return;
+
+            }
+
+            const randomIndex = Math.floor(
+                Math.random() * availableGames.length
+            );
+
+            const selectedGame = availableGames[randomIndex];
+
+            const originalIndex = allGames.indexOf(selectedGame) + 1;
+
+            result.innerHTML = `
+                <h2>🎮 Твоя следующая игра:</h2>
+                <p style="font-size:22px; font-weight:bold;">
+                    ${selectedGame.name}
+                </p>
+                <p>Номер в списке: ${originalIndex}</p>
+                <p>Статус: ${selectedGame.status || 'Не пройдена'}</p>
+            `;
+
+            // Сбрасываем фильтр и подсвечиваем выбранную игру в таблице
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            document.querySelector('.filter-btn').classList.add('active');
+
+            renderGames(allGames);
+
         }
 
         window.onload = loadGames;
+
     </script>
+
 </body>
 </html>
