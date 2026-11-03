@@ -42,6 +42,56 @@
             text-align: center;
         }
 
+        /* ВСТУПЛЕНИЕ О ПРОЕКТЕ */
+
+        .project-intro {
+            width: 100%;
+            max-width: 850px;
+            box-sizing: border-box;
+            background: #252525;
+            border-left: 4px solid var(--accent-color);
+            border-radius: 8px;
+            padding: 20px 24px;
+            margin-bottom: 25px;
+            line-height: 1.7;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+        }
+
+        .project-intro h2 {
+            color: var(--accent-color);
+            font-size: 17px;
+            margin: 0 0 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .project-intro p {
+            color: #dcdde1;
+            font-size: 14px;
+            margin: 0 0 14px;
+        }
+
+        .project-intro .language-label {
+            color: #ffa502;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .project-intro .tribute {
+            color: #a4b0be;
+            font-style: italic;
+            margin-top: 15px;
+        }
+
+        .project-intro .divider {
+            border: 0;
+            border-top: 1px solid #444;
+            margin: 18px 0;
+        }
+
         /* ПРОГРЕСС */
 
         .progress-container {
@@ -250,6 +300,10 @@
                 padding: 10px;
                 font-size: 13px;
             }
+
+            .project-intro {
+                padding: 16px;
+            }
         }
     </style>
 </head>
@@ -263,7 +317,60 @@
         в стиле The Mexican Runner
     </p>
 
+    <!-- ОПИСАНИЕ ПРОЕКТА НА ДВУХ ЯЗЫКАХ -->
+
+    <div class="project-intro">
+
+        <h2>🎮 О проекте / About the Project</h2>
+
+        <div class="language-label">🇷🇺 Русский</div>
+
+        <p>
+            NES Marathon: 101 Games Challenge — это мой личный проект,
+            посвящённый исследованию золотой эпохи Nintendo Entertainment System.
+            Моя цель — пройти 101 игру из библиотеки NES, познакомиться
+            с классикой игровой индустрии и сохранить историю этих
+            замечательных игр.
+        </p>
+
+        <p class="tribute">
+            Этот проект также является данью уважения The Mexican Runner (TMR),
+            человеку, чьи невероятные достижения и масштабные марафоны
+            прохождения игр NES вдохновили меня на создание собственного
+            испытания. Спасибо за вдохновение, преданность ретро-играм
+            и огромный вклад в игровое сообщество!
+        </p>
+
+        <hr class="divider">
+
+        <div class="language-label">🇬🇧 English</div>
+
+        <p>
+            NES Marathon: 101 Games Challenge is my personal project dedicated
+            to exploring the golden age of the Nintendo Entertainment System.
+            My goal is to complete 101 games from the NES library, discover
+            the classics of video game history, and celebrate these
+            wonderful games.
+        </p>
+
+        <p class="tribute">
+            This project is also a tribute to The Mexican Runner (TMR),
+            whose incredible achievements and legendary NES gaming marathons
+            inspired me to create my own challenge. Thank you for the
+            inspiration, dedication to retro gaming, and your contribution
+            to the gaming community!
+        </p>
+
+        <hr class="divider">
+
+        <p style="text-align:center; font-size:12px; color:#747d8c; margin:0;">
+            An independent fan project. Not affiliated with or endorsed by The Mexican Runner.
+        </p>
+
+    </div>
+
     <!-- ПРОГРЕСС -->
+
     <div class="progress-container">
 
         <div class="progress-info">
@@ -285,6 +392,7 @@
     </div>
 
     <!-- СЛУЧАЙНАЯ ИГРА -->
+
     <div class="actions">
         <button class="random-btn" onclick="randomGame()">
             🎲 Случайная игра из списка
@@ -294,6 +402,7 @@
     <div class="random-result" id="random-result"></div>
 
     <!-- ФИЛЬТРЫ -->
+
     <div class="filters">
 
         <button class="filter-btn active"
@@ -314,6 +423,7 @@
     </div>
 
     <!-- ТАБЛИЦА -->
+
     <div class="table-container">
 
         <table>
@@ -342,7 +452,15 @@
 
         let allGames = [];
 
-        // Загрузка списка игр
+        // Проверка статуса игры
+        function getGameStatus(game) {
+            return game.status
+                ? String(game.status).toLowerCase().trim()
+                : "не пройдена";
+        }
+
+        // ЗАГРУЗКА ИГР
+
         async function loadGames() {
 
             try {
@@ -354,6 +472,10 @@
                 }
 
                 allGames = await response.json();
+
+                if (!Array.isArray(allGames)) {
+                    throw new Error('Некорректный формат games.json');
+                }
 
                 updateProgress();
                 renderGames(allGames);
@@ -375,16 +497,8 @@
 
         }
 
-        // Проверка статуса игры
-        function getGameStatus(game) {
-
-            return game.status
-                ? game.status.toLowerCase().trim()
-                : "не пройдена";
-
-        }
-
         // ОБНОВЛЕНИЕ ПРОГРЕССА
+
         function updateProgress() {
 
             const total = allGames.length;
@@ -417,6 +531,7 @@
         }
 
         // ОТОБРАЖЕНИЕ ИГР
+
         function renderGames(games) {
 
             const tbody = document.getElementById('games-list');
@@ -440,7 +555,6 @@
 
                 const title = game.name || "Без названия";
                 const status = getGameStatus(game);
-
                 const rating = game.rating || "-";
                 const date = game.date || "-";
 
@@ -491,6 +605,7 @@
         }
 
         // ФИЛЬТРАЦИЯ ИГР
+
         function filterGames(statusFilter, button) {
 
             document.querySelectorAll('.filter-btn').forEach(btn => {
@@ -526,10 +641,10 @@
 
         }
 
-        // 🎲 СЛУЧАЙНАЯ ИГРА
+        // СЛУЧАЙНАЯ ИГРА
+
         function randomGame() {
 
-            // Берём игры, которые ещё не пройдены
             const availableGames = allGames.filter(game => {
 
                 const status = getGameStatus(game);
@@ -565,13 +680,12 @@
             result.innerHTML = `
                 <h2>🎮 Твоя следующая игра:</h2>
                 <p style="font-size:22px; font-weight:bold;">
-                    ${selectedGame.name}
+                    ${selectedGame.name || "Без названия"}
                 </p>
                 <p>Номер в списке: ${originalIndex}</p>
                 <p>Статус: ${selectedGame.status || 'Не пройдена'}</p>
             `;
 
-            // Сбрасываем фильтр и подсвечиваем выбранную игру в таблице
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
